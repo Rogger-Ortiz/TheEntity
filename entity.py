@@ -528,6 +528,7 @@ async def on_message(msg):
 
 @bot.event
 async def on_member_join(member):
-    await member.send("Welcome to the Campfire " + member.mention + "! If you need any help, feel free to ask <@248440677350899712>!")
+    channel = 588386911677186049
+    await channel.send("Welcome to the Campfire " + member.mention + "! If you need any help, feel free to ask <@248440677350899712>!")
 
 bot.run(os.getenv("DPY_key"))
