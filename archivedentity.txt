@@ -1,0 +1,146 @@
+import discord
+from discord.ext import commands
+from TikTokApi import TikTokApi
+from urllib.request import urlopen
+import nest_asyncio
+import os
+import random
+import time
+from os.path import exists
+import subprocess
+from time import sleep
+from datetime import datetime
+import asyncio
+
+def grabVideo(vid):
+    with TikTokApi() as api:
+        video = api.video(id=vid)
+        video_data = video.bytes()
+        with open("out.mp4","wb") as out_file:
+            out_file.write(video_data)
+
+nest_asyncio.apply()
+intents = discord.Intents.all()
+bot = commands.Bot(command_prefix='$', intents=intents)
+
+@bot.command(name="ping")
+async def ping(ctx):
+    await ctx.send("Pong! but this time with **context**")
+
+@bot.command(name="test")
+async def test(ctx):
+    await ctx.send("This is a test!!!!!!!!!")
+
+
+class MyClient(discord.Client):
+
+    async def on_ready(self):
+        #Bot logs into itself, nothing crazy
+        print('Logged on as {0}!'.format(self.user))
+        if(os.getcwd() == "/home/captain/WIP/entity"):
+            await self.change_presence(activity=discord.Game('around in Debug Mode'))
+        else:
+            await self.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="survivors suffer"))
+
+    async def on_member_join(member):
+        await client.send_message(member,"Welcome to the Campfire " + member.mention + "! If you need any help, feel free to ask <@248440677350899712>!")
+
+    async def on_message(self, message):
+        print('Message from {0.author}: {0.content}'.format(message))
+        raw = message.content
+        msg = message.content.lower()
+
+        if message.author == self.user:
+            #ignores its own messages
+            return
+
+        if "$help" in msg:
+            #help embed, make sure to add new field every time a new command is made
+            e1 = discord.Embed(title="Help",
+                               description="The following is a list of all the $commands/[features] (in alphabetical order)",
+                               color=14177041)
+            e1.add_field(name="$flip", value="Flips a coin")
+            e1.add_field(name="$help", value="Lists all commands")
+            e1.add_field(name="$ping", value="Pings the bot, if you get a response, good")
+            e1.add_field(name="$play [Youtube Link]", value="Plays youtube video in voice channel (must be in one to execute command)")
+            e1.add_field(name="[Tiktok Link]", value="Embeds a tiktok link for others to see")
+            await message.channel.send(embed=e1)
+
+        if "https://www.tiktok.com/" in raw:
+            #String split the ID after it uses the web to get true URL. Uses TTA to then download by video ID. Deletes file after
+            startloc = raw.find("https://www.tiktok.com/")
+            url = raw[startloc:]
+            url = url.split()[0]
+            print(url)
+
+            try:
+                if(exists("./out.mp4")):
+                        os.remove("./out.mp4")
+                web = urlopen(url)
+                get_url = web.geturl()
+                get_url = get_url.split("/video/")[1].split("?")[0]
+                grabVideo(get_url)
+                with open('out.mp4','rb') as fp:
+                    await message.reply(file=discord.File(fp, 'tiktok.mp4'))
+                os.remove("./out.mp4")
+            except IndexError:
+                await message.reply("Broken Link! You sure that leads to a video?")
+
+        if "$play" in raw:
+            #Nightmare
+            await message.channel.send("Link pending... (RJ Needs to implement this)")
+        
+        if "$flip" in msg:
+            #Flips a coin! Allows user to call it in the air
+            await message.channel.send("Call it in the air!")
+            HoT = random.randint(0,1)
+            time.sleep(3.0)
+            if(HoT):
+                await message.channel.send("It was Heads!")
+            else:
+                await message.channel.send("It was Tails!")
+
+        if "$rollback" in msg:
+            observer = discord.utils.find(lambda r: r.name == "The Observer", message.channel.guild.roles)
+            if observer in message.author.roles:
+                await message.reply("Rolling back most recent update...")
+                subprocess.call("./reboot/rollback.sh")
+
+        if "$reboot" in msg:
+            # Reboots any and all servies (ecept NTT)
+            killers = discord.utils.find(lambda r: r.name == "Killers", message.channel.guild.roles)
+            observer = discord.utils.find(lambda r: r.name == "The Observer", message.channel.guild.roles)
+            if killers in message.author.roles or observer in message.author.roles:
+                match raw:
+                    case "$reboot NTT":
+                        await message.reply("I cannot reboot myself! If you believe there is something wrong with me, please tell RJ, he will help from there.")
+                    case "$reboot TNT":
+                        await message.reply("The TNT Server will be restarted. Both the server and I will be unavailable for about a minute, please wait...")
+                        subprocess.call("./reboot/rebootTNT.sh")
+                        time.sleep(40.0)
+                        await message.reply("Done!")
+                    case "$reboot MMC":
+                        await message.reply("The MMC Server will be restarted. Both the server and I will be unavailable for about a minute, please wait...")
+                        subprocess.call("./reboot/rebootMMC.sh")
+                        time.sleep(20.0)
+                        await message.reply("Done!")
+                    case "$reboot":
+                        await message.reply("Please use the command as \"$reboot [service]\". Current services are:\n  - NTT (The Entity Bot)\n  - TNT (Tim and Trevor Modded Server)\n  - MMC (Vanilla Modded Minecraft)")
+
+            
+        if "$ballas" in msg:
+            #based
+            with open('./files/ballas.ogg', 'rb') as fp:
+                await message.channel.send(file=discord.File(fp, 'ballas.ogg'))
+            await message.channel.send("\"We had created monsters we couldn't control. We drugged them, tortured them, eviscerated them... we brutalized their minds, but it did not work. Until they came.\"")
+            await message.channel.send("\"And it was not their force of will, not their Void devilry, not their alien darkness... it was something else.\"")
+            await message.channel.send("\"It was that somehow, from within the derelict-horror, they had learned a way to see inside an ugly broken thing...\"")
+            await message.channel.send("\"...and take away its pain\"")
+
+        if "$smash4" in msg:
+            #even more based
+            await message.reply("Cool. I don’t care about being good at Smash 4 because that game was a pay to win shithole at its death and actually just worse than Brawl.")
+
+
+start = MyClient(intents=intents)
+start.run('OTQwNDIwMjE5OTQyMzQ2NzYz.G0ebeU.YvqM5JRL8wLvJm57UhPdfiiaI3ltIRhZywgUzk')

@@ -1,0 +1,530 @@
+import discord
+from discord.ext import commands
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.by import By
+import urllib.request
+from urllib.request import urlopen
+from urllib.request import HTTPError
+import nest_asyncio
+import os
+import random
+import time
+from os.path import exists
+import subprocess
+from time import sleep
+from datetime import datetime
+import asyncio
+import openai
+import json
+from lxml import html
+from lxml import etree
+import requests
+from datetime import datetime
+import pytesseract
+
+
+
+intents = discord.Intents.all()
+nest_asyncio.apply()
+bot = commands.Bot(command_prefix='$', intents=intents)
+client = discord.Client(intents=intents)
+openai.api_key = os.getenv("DALLE_key")
+blank = "‎"
+defaultEmbedColor=discord.Color(0xe67e22)
+green = discord.Color(0x00FF00)
+red = discord.Color(0xFF0000)
+pytesseract.pytesseract.tesseract_cmd=r'/usr/bin/tesseract'
+
+
+initial_extensions = ['cogs.hello',
+                      'cogs.birthday']
+
+async def loadall():
+    for ext in initial_extensions:
+        await bot.load_extension(ext)
+
+from riotwatcher import LolWatcher, ApiError
+watcher = LolWatcher(os.getenv("RIOT_key"))
+region = 'na1'
+
+
+@bot.command(name='lol')
+async def league(ctx, arg=None):
+    if arg == None:
+        helpEmbed = discord.Embed(color=0xFFA500, title="$lol [Summoner Name]")
+        helpEmbed.add_field(name="[Summoner Name]", value="The display name inside of the League of Legends client. NOT to be confused with Riot ID")
+        await ctx.send(embed=helpEmbed)
+    else:
+        try:
+            summoner = str(arg)
+            versions = watcher.data_dragon.versions_for_region(region)
+            user = watcher.summoner.by_name(region, summoner)
+            stats = watcher.league.by_summoner(region, user['id'])
+            champs = watcher.champion_mastery.by_summoner(region, user['id'])
+            print(user)
+
+            embed = discord.Embed(color=0xFFD700, title = user['name'])
+            icon_id = user['profileIconId']
+            icon_version = versions['n']['profileicon']
+            icon_url = "https://ddragon.leagueoflegends.com/cdn/"+str(icon_version)+"/img/profileicon/"+str(icon_id)+".png"
+            embed.set_thumbnail(url=str(icon_url))
+            embed.add_field(name="Level", value=user['summonerLevel'], inline=False)
+
+            if(str(stats) != "[]"):
+                for ranked in stats:
+                    match str(ranked['queueType']):
+                        case 'RANKED_FLEX_SR':
+                            type = "Ranked Flex"
+                        case 'RANKED_SOLO_5x5':
+                            type = "Ranked Solo"
+                    embed.add_field(name=type, value=str(ranked['tier'])+" "+str(ranked['rank']), inline=True)
+            await ctx.send(embed=embed)
+        except ApiError as err:
+            errorEmbed = discord.Embed(color=0xFF0000)
+            if err.response.status_code == 404:
+                errorEmbed.add_field(name="<:missing:1040075742123409469> Summoner was not found!", value="Did someone ping missing?")
+                await ctx.send(embed=errorEmbed)
+
+
+async def onboot(run):
+    now = datetime.now()
+    date = now.strftime("%m/%d")
+    time = now.strftime("%H:%M%p")
+    print(time)
+    channel=bot.get_channel(588386911677186049)
+    guildID = 588386910951702550
+    Guild = bot.get_guild(guildID)
+
+    if time == "09:00AM":
+        file = open('./files/birthdays.json')
+        data = json.load(file)
+        bdays = []
+        for thing in data:
+            entry = str(data[thing])
+            bday = entry.replace("[","").replace("]","").replace("'","")
+            if date == bday:
+                bdays.append(thing)
+        if len(bdays) > 0:
+            for person in bdays:
+                user = Guild.get_member(int(person))
+                bdayEmbed = discord.Embed(color=defaultEmbedColor,description=":tada: *We got a birthday today!* :tada:")
+                bdayEmbed.add_field(name="**Make sure to wish a happy birthday to** ", value = f"{user.mention}!")
+                bdayEmbed.set_footer(text="I'm sure they'd appreciate it :)")
+                bdayEmbed.set_thumbnail(url=user.display_avatar.url)
+                await channel.send(embed=bdayEmbed)
+        else:
+            gmEmbed = discord.Embed(color=defaultEmbedColor, description="**Good Morning everyone! I hope you all have a great day!**")
+            await channel.send(embed=gmEmbed)
+
+    await asyncio.sleep(60)
+    await onboot(run)
+
+async def grabLinkData(link):
+    options = webdriver.ChromeOptions()
+    options.add_argument("--no-sandbox")
+    options.add_argument("--no-check-certificate")
+    options.add_argument("--disable-gpu")
+    options.add_argument("--headless")
+    browser = webdriver.Chrome(options=options)
+    browser.get(link)
+    authorNick = browser.find_element(By.XPATH, '//span[@class="tiktok-1xccqfx-SpanNickName e17fzhrb3"]').text           # /text()
+    imgLink = browser.find_element(By.XPATH, '//div[@class="tiktok-uha12h-DivContainer e1vl87hj1"]/span/img').get_attribute("src")   # /@src
+    vidLink = browser.find_element(By.XPATH, '//div[@class="tiktok-1h63bmc-DivBasicPlayerWrapper e1yey0rl2"]/div/video').get_attribute("src")
+    print("Video Link: "+vidLink)
+    authorLink = browser.find_element(By.XPATH, '//a[@class="tiktok-prw1wq e17fzhrb6"]').get_attribute("href")         # /@href
+    authorHandle = authorLink.replace("https://www.tiktok.com/","")
+    data = []
+
+    data.append(str(authorNick))                   #0
+    data.append(str(authorHandle))                 #1
+    data.append(str(authorLink))                   #2
+    data.append(str(imgLink))                      #3
+    data.append(str(blank))                        #4
+    
+    urllib.request.urlretrieve(vidLink, 'tiktok.mp4')
+
+    print(data)
+    browser.close()
+    return data
+
+def grabCaption(link):
+    headers = {'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.142 Safari/537.36'}
+    page = requests.get(link, headers=headers)
+    try:
+        tree = html.fromstring(page.content)
+    except:
+        return 1
+    captxt = tree.xpath('//span[@class="tiktok-j2a19r-SpanText efbd9f0"]/text()')
+    tags = tree.xpath('//a[@class="tiktok-q3q1i1-StyledCommonLink ejg0rhn4"]/@href')
+    caption = ""
+    for words in captxt:
+        caption+=words+' '
+    for tag in tags:
+        if "/@" in tag:
+            replurl = "https://www.tiktok.com"+tag
+            tag=tag.replace("/","")
+            caption = caption[:12]+"[**"+tag+"**]"+"("+replurl+")"+caption[12:]
+            continue
+        alt = tag.replace("/tag/", "#")
+        caption+=alt+' '
+    return caption
+
+
+def grabVideo(link):
+        subprocess.run(["wget",link,"-O","out.mp4"])
+
+def getAvatarUrl(ctx):
+	avatarUrl = ctx.author.guild_avatar
+	if(avatarUrl == None):
+		avatarUrl = ctx.author.avatar.url
+	else:
+		avatarUrl = ctx.author.guild_avatar.url
+	return avatarUrl
+
+
+
+@commands.cooldown(1, 30, commands.BucketType.user)
+@bot.command(name="flip")
+async def flip(ctx):
+    await ctx.send("Call it in the air!")
+    HoT = random.randint(0,1)
+    time.sleep(3.0)
+    if(HoT):
+        await ctx.send("It was Heads!")
+    else:
+        await ctx.send("It was Tails!")
+
+@bot.command(name="services")
+async def services(ctx):
+    embedMsg = discord.Embed(title="Services", description="These are all of the services offered that are hosted by The Campfire!", color=defaultEmbedColor)
+    embedMsg.add_field(name="Tim and Trevor Modded Minecraft Server", value="A modded minecraft server that was made by our very own. Download the modpack here: https://drive.google.com/file/d/10yl5T825WH7CbYmDBwZIhWTiUvZKoYmF/view?usp=sharing\n(IP: **tnt.rjortiz.com**)", inline=True)
+    embedMsg.add_field(name="Vanilla Minecraft Server", value="Just a plain old vanilla server, always updated to the latest version.\n(IP: **play.rjortiz.com**)", inline=True)
+    embedMsg.add_field(name="The Entity Bot", value="Me! I am a continuously upgraded passion project maintained by RJ.\n**(Github: https://github.com/Rogger-Ortiz/TheEntity/blob/main/entity.py)**", inline=True)
+    await ctx.reply(embed=embedMsg)
+
+@commands.cooldown(1, 300, commands.BucketType.user)
+@commands.cooldown(1, 60, commands.BucketType.guild)
+@commands.has_role('Offerings to The Entity')
+@bot.command(name="imagine")
+async def imagine(ctx, arg=None):
+    errorEmbed = discord.Embed(color=0xFF0000)
+    if(arg != None):
+        phrase = str(arg)
+        await ctx.reply("Okay! Imagining " + phrase + ", give me a moment...")
+        try:
+            generation = openai.Image.create(
+                prompt = phrase,
+                n = 1,
+                size = "1024x1024"
+            )
+        except:
+            errorEmbed.add_field(name=":x: Cannot Generate!", value="This could be because your request was NSFW or contained a persons face. Please do not request those. Your cooldown has been refunded.")
+            await ctx.send(embed=errorEmbed)
+            imagine.reset_cooldown(ctx)
+            return
+        image_url = generation['data'][0]['url']
+        print(image_url)
+        aiEmbed = discord.Embed(color=0x9fca53, title="Generated by: " + ctx.author.display_name)
+        aiEmbed.set_thumbnail(url=getAvatarUrl(ctx))
+        aiEmbed.add_field(name="Phrase:", value=phrase)
+        urllib.request.urlretrieve(image_url, "image.jpg")
+        file = discord.File("./image.jpg", filename="image.jpg")
+        aiEmbed.set_image(url="attachment://image.jpg")
+        await ctx.send(file=file, embed=aiEmbed)
+        os.remove("./image.jpg")
+        if(ctx.author.name == "Captain"):
+            imagine.reset_cooldown(ctx)
+    else:
+        helpEmbed = discord.Embed(color=0xFFA500)
+        helpEmbed.add_field(name="$imagine [phrase]", value="Your phrase can be anything! Be as descriptive as you want!")
+        await ctx.send(embed=helpEmbed)
+        imagine.reset_cooldown(ctx)
+@imagine.error
+async def imagine_error(ctx, error):
+    errorEmbed = discord.Embed(color=0xFF0000)
+    boostEmbed = discord.Embed(color=0xf47fff)
+    if isinstance(error, commands.CommandOnCooldown):
+        timeLeft = round(error.retry_after,2)
+        errorEmbed.add_field(name=":x: Please wait 5 minutes before each request! ("+str(timeLeft)+"s left)", value="Thinking of these images takes a lot out of me...")
+        await ctx.send(embed=errorEmbed)
+    if isinstance(error, commands.MissingRole):
+        boostEmbed.add_field(name="<:boost:1040099133295444018> This command is for boosters only!", value="Your support would be much appreciated :)")
+        await ctx.send(embed=boostEmbed)
+
+@bot.command(name="role")
+async def role(ctx, name=None):
+    file = open('./files/serverRoles.json', 'r')
+    data = json.load(file)
+    guildID = str(ctx.guild.id)
+    role = str(name)
+    roleEmbed = discord.Embed(color=defaultEmbedColor)
+    successEmbed = discord.Embed(color=green)
+    errorEmbed = discord.Embed(color=red)
+
+    if name == None:
+        try:
+            list = data[guildID]
+            roleList = ""
+            for thing in list:
+                roleList += thing+"\n"
+            roleEmbed.add_field(name="Available Roles to Add:", value=roleList, inline=False)
+            await ctx.send(embed=roleEmbed)
+            return
+        except KeyError:
+            errorEmbed.add_field(name=":x: No roles created by me in this server!", value="Have an admin create one using $newrole [role]!")
+            await ctx.send(embed=errorEmbed)
+            return
+
+    if role not in data[guildID]:
+        errorEmbed.add_field(name=":x: \""+role+"\" doesn't exist!", value="View all roles using $role!")
+        await ctx.send(embed=errorEmbed)
+        return
+
+    check = discord.utils.find(lambda r: r.name == role, ctx.channel.guild.roles)
+    if check in ctx.author.roles:
+        await ctx.author.remove_roles(discord.utils.get(ctx.guild.roles, name=role))
+        successEmbed.add_field(name=":white_check_mark: Removed \""+role+"\" from your roles!", value="View all roles using $role!")
+        await ctx.send(embed=successEmbed)
+    else:
+        await ctx.author.add_roles(discord.utils.get(ctx.guild.roles, name=role))
+        successEmbed.add_field(name=":white_check_mark: Added \""+role+"\" to your roles!", value="View all roles using $role!")
+        await ctx.send(embed=successEmbed)
+    file.close()
+
+
+@commands.has_permissions(administrator=True)
+@bot.command(name="delrole")
+async def delrole(ctx, num=None):
+    file = open('./files/serverRoles.json', 'r+')
+    data = json.load(file)
+    guildID = str(ctx.guild.id)
+    errorEmbed=discord.Embed(color=red)
+    successEmbed=discord.Embed(color=green)
+    roleEmbed=discord.Embed(title="Available Roles to Delete", color=defaultEmbedColor)
+    roleEmbed.add_field(name="Syntax: $delrole [index_num]", value="Index number is the number above the corresponding role", inline=False)
+
+    if num == None:
+        try:
+            list = data[guildID]
+            count = 0
+            for thing in list:
+                roleEmbed.add_field(name=count, value=thing, inline=True)
+                count = count+1
+            await ctx.send(embed=roleEmbed)
+            return
+        except KeyError:
+            errorEmbed.add_field(name=":x: No roles created by me in this server!", value="Create one using $newrole [role]!")
+            await ctx.send(embed=errorEmbed)
+            return
+
+    try:
+        index = int(num)
+    except ValueError:
+        errorEmbed.add_field(name=":x: Please input index number, not role name!", value="View index numbers using $delrole!")
+        await ctx.send(embed=errorEmbed)
+        return
+
+    try:
+        indexTest = data[guildID][index]
+    except IndexError:
+        errorEmbed.add_field(name=":x: No role with that index!", value="Please use $delrole to view all index values")
+        await ctx.send(embed=errorEmbed)
+        return
+
+    if index >= 0:
+        role = str(data[guildID][index])
+        roleObj = discord.utils.get(ctx.guild.roles,name=data[guildID][index])
+        await roleObj.delete()
+        data[guildID].pop(index)
+        file.truncate(0)
+        file.seek(0)
+        json.dump(data, file)
+        successEmbed.add_field(name=":white_check_mark: Removed role \""+role+"\"!", value="view all roles using $role!")
+        await ctx.send(embed=successEmbed)
+    else:
+        await ctx.send("No role with that number!")
+    file.close()
+
+@commands.has_permissions(administrator=True)
+@bot.command(name="newrole")
+async def newrole(ctx, name=None, color='0x95a5a6'):
+    file = open('./files/serverRoles.json', 'r+')
+    data = json.load(file)
+    guildID = str(ctx.guild.id)
+    role = str(name)
+    errorEmbed = discord.Embed(color=red)
+    successEmbed = discord.Embed(color=green)
+    if '0x' not in color:
+        errorEmbed.add_field(name=":x: Please enter a valid color Hex Value", value="For example: 0x95a5a6")
+        await ctx.send(embed=errorEmbed)
+        return 
+
+    if name==None:
+        errorEmbed.add_field(name=":x: Please use correct syntax!",value="Syntax: $newrole [name] [hex color value](Optional)")
+        await ctx.send(embed=errorEmbed)
+        return
+
+    try:
+        if role not in data[guildID]:
+            data[guildID].append(role)
+        else:
+            errorEmbed.add_field(name=":x: Role \""+role+"\" already exists!", value="View all roles using $role!")
+            await ctx.send(embed=errorEmbed)
+            return
+        file.truncate(0)
+        file.seek(0)
+        json.dump(data, file)
+    except KeyError:
+        entry = f"{{\"{guildID}\": [\"{role}\"]}}"
+        newEntry = json.loads(entry)
+        data.update(newEntry)
+        file.truncate(0)
+        file.seek(0)
+        json.dump(data, file)
+    file.close()
+    guild = ctx.guild
+    await guild.create_role(name=role, color=discord.Color.from_str(color))
+    successEmbed.add_field(name=":white_check_mark: Created role \""+role+"\"!", value="View all roles using $role!")
+    await ctx.send(embed=successEmbed)
+
+@bot.command(name="rollback")
+async def rollback(ctx):
+    observer = discord.utils.find(lambda r: r.name == "The Observer", ctx.channel.guild.roles)
+    if observer in ctx.author.roles:
+        successEmbed = discord.Embed(color=0x00FF00)
+        successEmbed.add_field(name=":white_check_mark:", value="Rolling back most recent update...")
+        await ctx.send(embed=successEmbed)
+        subprocess.call("./reboot/rollback.sh")
+
+@bot.command(name="reboot")
+async def reboot(ctx, service):
+    killers = discord.utils.find(lambda r: r.name == "Killers", ctx.channel.guild.roles)
+    observer = discord.utils.find(lambda r: r.name == "The Observer", ctx.channel.guild.roles)
+    if killers in ctx.author.roles or observer in ctx.author.roles:
+        successEmbed = discord.Embed(color=0x00FF00)
+        errorEmbed = discord.Embed(color=0xFF0000)
+        match service:
+            case "NTT":
+                if(observer not in ctx.author.roles):
+                    errorEmbed.add_field(name=":x: Only RJ can reboot me!", value="If you believe there is something wrong with me, please tell RJ, he will help from there.")
+                    await ctx.reply(embed=errorEmbed)
+                else:
+                    successEmbed.add_field(name=":white_check_mark: As you wish.", value="Rebooting now.")
+                    await ctx.reply(embed=successEmbed)
+                    subprocess.run(['./reboot/sendCMD.sh', 'NTT'])
+            case "TNT":
+                successEmbed.add_field(name=":white_check_mark: The TNT Server will be restarted.", value="The server will be down momentarily, check back in a minute.")
+                await ctx.reply(embed=successEmbed)
+                subprocess.run(['./reboot/sendCMD.sh', 'TNT'])
+            case "MMC":
+                successEmbed.add_field(name=":white_check_mark: The MMC Server will be restarted.", value="The server will be down momentarily, check back in a minute")
+                await ctx.reply(embed=successEmbed)
+                subprocess.run(['./reboot/sendCMD.sh', 'MMC'])
+
+
+
+
+@bot.command(name="ryzeify")
+async def ryzeify(ctx, arg):
+    ryzeEmbed = discord.Embed(color=0x737de7)
+    if arg.find("e") != -1 or arg.find("E") != -1:
+        txt = str(arg)
+        reply = txt.replace("e", "e(Q)").replace("E", "E(Q)")
+        ryzeEmbed.add_field(name="Ryze Says:", value=reply)
+        ryzeEmbed.set_thumbnail(url="https://static.wikia.nocookie.net/leagueoflegends/images/2/23/Ryze_OriginalSquare.png/revision/latest/smart/width/250/height/250?cb=20160630224634")
+        await ctx.reply(embed=ryzeEmbed)
+    else:
+        with open('./files/ThisGuyDoesntKnowHowToUseCommand.jpg', 'rb') as fp:
+            await ctx.reply(file=discord.File(fp, 'ThisGuyDoesntKnowHowToUseCommand.jpg')) 
+
+@commands.cooldown(1, 30, commands.BucketType.user)
+@bot.command(name="smash4")
+async def smash4(ctx):
+    davidEmbed = discord.Embed(color=0xFC94AF)
+    davidEmbed.set_thumbnail(url="https://media-exp1.licdn.com/dms/image/C4D03AQG0ek-qkG88jA/profile-displayphoto-shrink_200_200/0/1636168555634?e=2147483647&v=beta&t=_Md7pBD065Bb5IjSuEyRGbbCRizhuXxhlokqVTm36PM")
+    davidEmbed.add_field(name="David Says:", value="Cool. I don’t care about being good at Smash 4 because that game was a pay to win shithole at its death and actually just worse than Brawl.")
+    await ctx.send(embed=davidEmbed)
+
+@commands.cooldown(1, 30, commands.BucketType.user)
+@bot.command(name="ballas")
+async def ballas(ctx):
+    ballasEmbed = discord.Embed(color=0xadd8e6)
+    ballasEmbed.set_thumbnail(url="https://static.wikia.nocookie.net/warframe/images/5/5b/BallasPrologue.jpg/revision/latest?cb=20171223083810")
+    with open('./files/ballas.ogg', 'rb') as fp:
+        await ctx.send(file=discord.File(fp, 'ballas.ogg'))
+    file=discord.File("./files/ballas.ogg", filename="ballas.ogg")
+    ballasEmbed.set_image(url="attachment://ballas.ogg")
+    ballasEmbed.add_field(name="Virtuvian Monologue", value="\"We had created monsters we couldn't control. We drugged them, tortured them, eviscerated them... we brutalized their minds, but it did not work. Until they came.\"\n\n\"And it was not their force of will, not their Void devilry, not their alien darkness... it was something else.\"\n\n\"It was that somehow, from within the derelict-horror, they had learned a way to see inside an ugly broken thing...\"\n\n\"...and take away its pain\"")
+    await ctx.send(file=file, embed=ballasEmbed)
+
+
+@bot.event
+async def on_ready():
+    print('Logged on as {0}!'.format(bot.user))
+    print("Discord.py Version: "+discord.__version__)
+    if(os.getcwd() == "/home/captain/WIP/entity"):
+        await bot.change_presence(activity=discord.Game('around in Debug Mode'))
+    else:
+        await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="survivors suffer"))
+    await loadall()
+    await onboot(1)
+    
+
+@bot.event
+async def on_message(msg):
+    await bot.process_commands(msg)
+    if msg.author.bot:
+        return
+    raw = msg.content
+
+
+    for image in msg.attachments:
+        url = image.url
+        print("Pytesseract will use: "+url)
+        subprocess.run(["wget",url,"-O","checkImage.png"])
+        imgSays = pytesseract.image_to_string('checkImage.png')
+        print("Image Says: "+imgSays)
+        os.remove("checkImage.png")
+        if "Faggot" in imgSays or "faggot" in imgSays:
+            await msg.delete()
+            await msg.channel.send("That was a bad word")
+
+
+    print(raw)
+    if "https://www.tiktok.com/" in raw:
+        errorEmbed = discord.Embed(color=red)
+        defaultEmbed = discord.Embed(color=defaultEmbedColor)
+        startloc = raw.find("https://www.tiktok.com/")
+        url = raw[startloc:]
+        url = url.split()[0]
+        sent = raw.split(url)
+        caption = grabCaption(url)
+        if caption==1:
+            errorEmbed.add_field(name=":x: Broken Link!", value="You sure that leads to a video?")
+            await msg.channel.send(embed=errorEmbed)
+            return
+        try:
+            tiktokEmbed = discord.Embed(color=0xFF0050, description=caption+" [#link]("+url+")")
+            if(exists("./tiktok.mp4")):
+                os.remove("./tiktok.mp4")
+            data = await grabLinkData(url)
+            print(url)
+
+            tiktokEmbed.set_author(name=str(data[0]+" ("+data[1]+")"),url=data[2],icon_url=data[3])
+            tiktokEmbed.set_footer(text="TikTok "+data[4], icon_url="https://cdn4.iconfinder.com/data/icons/social-media-flat-7/64/Social-media_Tiktok-512.png")
+            await msg.edit(suppress=True)
+            await msg.channel.send(embed=tiktokEmbed)
+            await msg.channel.send(file=discord.File(r'./tiktok.mp4'))
+            os.remove("./tiktok.mp4")
+        except ValueError:#IndexError:
+            await msg.add_reaction('\U0001F5BC')
+
+@bot.event
+async def on_member_join(member):
+    channel = 588386911677186049
+    pid = 248440677350899712
+    owner = bot.get_user(pid)
+    await channel.send(f"Welcome to The Campfire {member.mention}! If you need any help, feel free to ask {owner.mention}!")
+
+bot.run(os.getenv("DPY_key"))
