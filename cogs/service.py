@@ -17,7 +17,7 @@ class Service(commands.Cog):
         embedMsg = discord.Embed(title="Services", description="These are all of the services offered that are hosted by The Campfire!", color=defaultEmbedColor)
         embedMsg.add_field(name="Tim and Trevor Modded Minecraft Server", value="A modded minecraft server that was made by our very own. Download the modpack here: https://drive.google.com/file/d/10yl5T825WH7CbYmDBwZIhWTiUvZKoYmF/view?usp=sharing\n(IP: **tnt.rjortiz.com**)", inline=True)
         embedMsg.add_field(name="Vanilla Minecraft Server", value="Just a plain old vanilla server, always updated to the latest version.\n(IP: **play.rjortiz.com**)", inline=True)
-        embedMsg.add_field(name="The Entity Bot", value="Me! I am a continuously upgraded passion project maintained by RJ.\n**(Github: https://github.com/Rogger-Ortiz/TheEntity/blob/main/entity.py)**", inline=True)
+        embedMsg.add_field(name="The Entity Bot", value="Me! I am a continuously upgraded passion project maintained by RJ.\n(Github: **https://github.com/Rogger-Ortiz/TheEntity**)", inline=True)
         await ctx.reply(embed=embedMsg)
     
     @commands.command(name="reboot", hidden=True) 
