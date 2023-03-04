@@ -125,7 +125,6 @@ async def onboot(run):
             if weekday == 4:
                 gm = bot.get_cog("gm")
                 await gm.sendgm(channel)
-                return
             if len(bdays) > 0:
                 for person in bdays:
                     user = Guild.get_member(int(person))
@@ -142,7 +141,6 @@ async def onboot(run):
             print("Created DM, sending")
             await dm.dm_tim()
             print("Send!")
-            return
         if ":00" in time:
             themes = bot.get_cog("ThemesCog")
             await themes.changeStatus()
