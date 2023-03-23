@@ -135,6 +135,7 @@ async def onboot(run):
             if weekday == 4:
                 gm = bot.get_cog("gm")
                 await gm.sendgm(channel)
+                return
             if len(bdays) > 0:
                 for person in bdays:
                     user = Guild.get_member(int(person))

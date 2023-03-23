@@ -52,6 +52,7 @@ initial_extensions = ['cogs.help',
                       'cogs.lyrics']
 
 
+
 @bot.command(name="enable", hidden=True)
 @commands.has_permissions(administrator = True)
 async def enable(ctx, arg=None):
@@ -125,6 +126,7 @@ async def onboot(run):
             if weekday == 4:
                 gm = bot.get_cog("gm")
                 await gm.sendgm(channel)
+                return
             if len(bdays) > 0:
                 for person in bdays:
                     user = Guild.get_member(int(person))

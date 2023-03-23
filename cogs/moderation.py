@@ -10,16 +10,16 @@ defaultEmbedColor=discord.Color(0xe67e22)
 green = discord.Color(0x00FF00)
 red = discord.Color(0xFF0000)
 
-def scanAttachment(msg):
-    # Grab image and run through pytesseract
-    for image in msg.attachments:
-        url = image.url
-        print("Pytesseract will use: "+url)
-        subprocess.run(["wget",url,"-O","checkImage.png"])
-        imgSays = pytesseract.image_to_string('checkImage.png')
-        print("Image Says: "+imgSays)
-        os.remove("checkImage.png")
-        return imgSays
+#def scanAttachment(msg):
+#    # Grab image and run through pytesseract
+#    for image in msg.attachments:
+#        url = image.url
+#        print("Pytesseract will use: "+url)
+#        subprocess.run(["wget",url,"-O","checkImage.png"])
+#        imgSays = pytesseract.image_to_string('checkImage.png')
+#        print("Image Says: "+imgSays)
+#        os.remove("checkImage.png")
+#        return imgSays
     # Return what image says
 
 class Moderation(commands.Cog):
@@ -41,10 +41,10 @@ class Moderation(commands.Cog):
             channel_name = "DM"
         else:
             channel_name = msg.channel.name
-        if msg.attachments != []:
-            print("Reading attachment... "+str(msg.attachments))
-            caption = scanAttachment(msg)
-            full += " " + str(caption).replace("\n", " ")
+#        if msg.attachments != []:
+#            print("Reading attachment... "+str(msg.attachments))
+#            caption = scanAttachment(msg)
+#            full += " " + str(caption).replace("\n", " ")
         print(f"({channel_name}) {msg.author.name}#{msg.author.discriminator}: {full}")
         sentence = str(full).split()
         if msg.channel.guild !=  None:

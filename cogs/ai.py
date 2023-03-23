@@ -19,11 +19,16 @@ def getAvatarUrl(ctx):
 		avatarUrl = ctx.author.guild_avatar.url
 	return avatarUrl
 
+def sanitize(msg):
+    return msg.replace("@","@/")
+
 defaultEmbedColor=discord.Color(0xe67e22)
 openai.api_key = os.getenv("DALLE_key")
 boostEmbed = discord.Embed(color=0xf47fff)
 boostEmbed.add_field(name="<:boost:1040099133295444018> This command is for boosters only!", value="Your support would be much appreciated :)")
-memory = [{"role": "system", "content": "You are a friend to those around you, and you prioritize shorter responses to lengthy ones"}]
+default = [{"role": "system", "content": "You are a friendly Discord bot named \"The Entity\" in a Discord server called \"The Campfire\". You assist the members in the server with questions they may have."}]
+memory = []
+memory.append(default[0])
 
 class OpenAI(commands.Cog):
     description="Uses OpenAI to generate different media!"
@@ -36,7 +41,9 @@ class OpenAI(commands.Cog):
     @commands.command(name="forget", help="Clears the AI's memory, to make room for a fresh set of queries", usage="")
     async def forget(self, ctx):
         global memory
-        memory = [{"role": "system", "content": "You are a friend to those around you, and you prioritize shorter responses to lengthy ones"}]
+        global default
+        memory = []
+        memory.append(default[0])
         wipeEmbed = discord.Embed(color=defaultEmbedColor)
         wipeEmbed.add_field(name="Memory wiped!", value="Ready for a new conversation!")
         await ctx.send(embed=wipeEmbed)
@@ -44,6 +51,7 @@ class OpenAI(commands.Cog):
     @commands.command(name="history", help="Displays the bot's current memory in the form of \"User Input\" - Bot response", usage="")
     async def history(self, ctx):
         global memory
+        global default
         conversation = ""
         for item in memory:
             if item['role'] == 'system':
@@ -68,6 +76,7 @@ class OpenAI(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, msg):
         global memory
+        global default
         if msg.author.bot:
             return
         if self.bot.user not in msg.mentions:
@@ -85,17 +94,18 @@ class OpenAI(commands.Cog):
             memory.append({"role": "user", "content": inp})
             print(f"Checking memory...{len(memory)}")
             response = openai.ChatCompletion.create(
-				model="gpt-3.5-turbo",
+				model="gpt-3.5-turbo",#"gpt-4",
 				messages=memory
 			)
             response = response['choices'][0]['message']['content']
             memory.append({"role": "assistant", "content": response})
             print(len(memory))
             if len(memory) > 11:
-                memory = [{"role": "system", "content": "You are a friend to those around you, and you prioritize shorter responses to lengthy ones"}]
+                memory = []
+                memory.append(default[0])
                 print("MEMORY WIPED")
                 response = response+" My memory has capped! Starting from scratch..."
-            await msg.channel.send(response)
+            await msg.channel.send(sanitize(response))
             return
 
 ###############################################################################################

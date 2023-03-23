@@ -31,6 +31,7 @@ class dm(commands.Cog):
             case 5:
                 message = "Alright pause the game, we gotta make sure those teeth are brushed big guy"
         await channel.send(message)
+        return
 
 async def setup(bot):
 	await bot.add_cog(dm(bot))

@@ -14,44 +14,49 @@ async def setStatus(self):
     with open('/home/captain/boot/NTT/files/theme.txt', 'r') as t:
         theme = t.readlines()[0].strip()
     status = random.randint(1,3)
+    response = ""
     match theme:
         case "default":
             match status:
                 case 1:
-                    response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
-                            messages=[
-                                {"role": "system", "content": "You are a Discord status generator"},
-                                {"role": "user", "content": "Generate a short but witty discord status for a Bot that is doing nothing that starts with the word \"Playing\""}
-                            ]
-                    )
-                    response = response['choices'][0]['message']['content']
-                    response = response.split("\"")
-                    await self.bot.change_presence(activity=discord.Game(name=str(response[1].split("Playing")[1])))
+                    await self.bot.change_presence(activity=discord.Game(name=str("with the bugs in my code")))
+#                    response = openai.ChatCompletion.create(
+#                            model="gpt-3.5-turbo",
+#                            messages=[
+#                                {"role": "system", "content": "You are a Discord status generator"},
+#                                {"role": "user", "content": "Generate a short but witty discord status for a Bot that is doing nothing that starts with the word \"Playing\""}
+#                            ]
+#                    )
+#                    response = response['choices'][0]['message']['content']
+#                    response = response.split("\"")
+#                    await self.bot.change_presence(activity=discord.Game(name=str(response[1].split("Playing")[1])))
+#                    response = ""
                 case 2:
-                    response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
-                            messages=[
-                                {"role": "system", "content": "You are a Discord status generator"},
-                                {"role": "user", "content": "Generate a short but witty discord status for a Bot that is doing nothing that starts with the words \"Listening to\""}
-                            ]
-                    )
-                    response = response['choices'][0]['message']['content']
-                    response = response.split("\"")
-                    print(response[1])
-                    await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=str(response[1].split("Listening to")[1])))
+                    await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=str("the birds chirp")))
+#                    response = openai.ChatCompletion.create(
+#                            model="gpt-3.5-turbo",
+#                            messages=[
+#                                {"role": "system", "content": "You are a Discord status generator"},
+#                                {"role": "user", "content": "Generate a short but witty discord status for a Bot that is doing nothing that starts with the words \"Listening to\""}
+#                            ]
+#                    )
+#                    response = response['choices'][0]['message']['content']
+#                    response = response.split("\"")
+#                    await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=str(response[1].split("Listening to")[1])))
+#                    response = ""
                 case 3:
-                    response = openai.ChatCompletion.create(
-                            model="gpt-3.5-turbo",
-                            messages=[
-                                {"role": "system", "content": "You are a Discord status generator"},
-                                {"role": "user", "content": "Generate a short but witty discord status for a Bot that is doing nothing that starts with the word \"Watching\""}
-                            ]
-                    )
-                    response = response['choices'][0]['message']['content']
-                    response = response.split("\"")
-                    print(response[1])
-                    await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(response[1].split("Watching")[1])))
+                    await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str("the day go by")))
+#                    response = openai.ChatCompletion.create(
+#                            model="gpt-3.5-turbo",
+#                            messages=[
+#                                {"role": "system", "content": "You are a Discord status generator"},
+#                                {"role": "user", "content": "Generate a short but witty discord status for a Bot that is doing nothing that starts with the word \"Watching\""}
+#                            ]
+#                    )
+#                    response = response['choices'][0]['message']['content']
+#                    response = response.split("\"")
+#                    await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name=str(response[1].split("Watching")[1])))
+#                    response = ""
 
         case "winter":
             match status:
@@ -69,6 +74,7 @@ class ThemesCog(commands.Cog):
 
     async def changeStatus(self):
         await setStatus(self)
+        #return
 
     @commands.Cog.listener()
     async def on_ready(self):
