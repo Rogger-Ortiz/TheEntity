@@ -101,10 +101,8 @@ class OpenAI(commands.Cog):
             memory.append({"role": "assistant", "content": response})
             print(len(memory))
             if len(memory) > 11:
-                memory = []
+                memory = memory[2:]
                 memory.append(default[0])
-                print("MEMORY WIPED")
-                response = response+" My memory has capped! Starting from scratch..."
             await msg.channel.send(sanitize(response))
             return
 
