@@ -3,9 +3,6 @@ A Discord Bot I made to replace paid features of other bots. Why pay others when
 I used discord.py rewritten as the library of choice for making this bot.
 
 # What it does
-So far it has a lot of functions that is aimed to replace other bots. These functions can range from creating dynamic voice channels to moderationg chat, to using AI to generate images and chat completions.
-
-# What it does
 I used a lot of API's over the development of this project to facilitate its functions. A comprehensive list can be found in the /cogs/ folder, where the functions are separated into their own (categorized) .py files. However some functions to note are:
 - Conversating with The Entity using its @ mention
 - Recording and wishing people a happy birthday on their birthdays
