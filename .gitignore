@@ -1,2 +1,4 @@
 reboot/
 *.sh
+backup.py
+requirements.txt

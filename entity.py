@@ -158,14 +158,15 @@ async def onboot(run):
 
         await asyncio.sleep(60)
 
-
 bot.remove_command('help')
 asyncio.run(loadall())
+
 @bot.event
 async def on_ready():
     print('Logged on as {0}!'.format(bot.user))
     print("Discord.py Version: "+discord.__version__)
     boot_thread = Thread(target=onboot)
+    print("Set thread!")
     if not boot_thread.is_alive():
         await onboot(1)
     else:
