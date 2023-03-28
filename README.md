@@ -1,7 +1,13 @@
 # The Entity
-A Discord Bot I made to replace paid features of other bots. Why pay others when you can code it yourself?
-I used discord.py rewritten as the library of choice for making this bot.
-- Disclaimer: The code here may not reflect what is actually live on the bot. I update this regularly as I develop code, but this may not reflect what is available in the server.
+This is a Discord bot I made for my own server (discord.gg/thecampfire) as a way to accomplish 2 big goals.
+- Replace all of the 3rd party discord bots already in the server to make 1 "do-it-all" bot that I controlled.
+- Use my newly built headless Linux server to gain experience in unix-based coding, as well as learning VIM.
+
+After the huge success that was the birth of this bot, I set my sights higher, utilizing many other API's to create capabilities that other Discord bots can't offer. Since then it has been a constantly improving service I run, that runs alongside some of my other smaller projects, such as my hosted Minecraft servers.
+
+Due to the nature of this bots birth, I apologize for the lack of comments on the code. Initially its source code was never meant to see the light of day but the growing interest in it kinda made me realize that posting it here would help others like me develop something even better. I'll go back through and comment as I work on improvements, but at the moment a lot of the knowledge is subject to your own knowledge of Python.
+
+Thank you to those in The Campfire and those who continue to show me and the bot support through our endless improvements!
 
 # What it does
 I used a lot of API's over the development of this project to facilitate its functions. A comprehensive list can be found in the /cogs/ folder, where the functions are separated into their own (categorized) .py files. However some functions to note are:
@@ -21,5 +27,11 @@ Below are some of the API's that I have used in the development of this bot, to 
 - davidteather's Unofficial TikTok API (featured in the now-retired TikTok embedder)
 - Tenor's API for gif searching
 - Musixmatch's API for the under development $lyrics function
+
+# Not Included
+As expected, some code is left out for security reasons because they manage my Minecraft servers, which contains IP's and the like. However because I know the scripts are referenced in some of the code I'll go over what they do in case anyone is wondering:
+- reboot.sh: reboots the minecraft servers (uses codenames like TNT or MMC to denote which server needs restarting, but other than that, doesn't do much else)
+- update.sh: pushes changes locally to my live version of The Entity. The bot runs in a separate destination due so that I can make changes locally without having to turn the bot off and on to make these changes. In the future I aim to have a second, local bot that I use to test these changes live before I push them. That is for another day, however.
+- rollback.sh: this is the "undo" button of sorts. It has since been deprecated, as it was only used back when the bot ran as 1 single file (before I made the switch to using Cogs).
 
 At the moment, this bot is not available for other servers. While some functions will work across multiple servers, a lot of functions were designed for one server only, and as such, this version of the bot will not be available to the public. If you choose to reuse any of the code I have written, please just make sure to give credit! :)
