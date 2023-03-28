@@ -1,5 +1,5 @@
 # The Entity
-This is a Discord bot I made for my own server (discord.gg/thecampfire) as a way to accomplish 2 big goals.
+This is a Discord bot I made for my own server [discord.gg/thecampfire](discord.gg/thecampfire) as a way to accomplish 2 big goals.
 - Replace all of the 3rd party discord bots already in the server to make 1 "do-it-all" bot that I controlled.
 - Use my newly built headless Linux server to gain experience in unix-based coding, as well as learning VIM.
 
