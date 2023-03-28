@@ -1,6 +1,7 @@
 # The Entity
 A Discord Bot I made to replace paid features of other bots. Why pay others when you can code it yourself?
 I used discord.py rewritten as the library of choice for making this bot.
+- Disclaimer: The code here may nto reflect what is actually live on the bot. I update this regularly as I develop code, but this may not reflect what is actually live on the bot.
 
 # What it does
 I used a lot of API's over the development of this project to facilitate its functions. A comprehensive list can be found in the /cogs/ folder, where the functions are separated into their own (categorized) .py files. However some functions to note are:
@@ -21,4 +22,4 @@ Below are some of the API's that I have used in the development of this bot, to 
 - Tenor's API for gif searching
 - Musixmatch's API for the under development $lyrics function
 
-At the moment, this bot is not available for other servers at the moment. While some functions will work across multiple servers, a lot of functions were designed for one server only, and as such, this version of the bot will not be available to the public. If you choose to reuse any of the code I have written, please just make sure to give credit! :)
+At the moment, this bot is not available for other servers. While some functions will work across multiple servers, a lot of functions were designed for one server only, and as such, this version of the bot will not be available to the public. If you choose to reuse any of the code I have written, please just make sure to give credit! :)
