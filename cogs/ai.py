@@ -52,6 +52,7 @@ class OpenAI(commands.Cog):
     async def history(self, ctx):
         global memory
         global default
+        print(memory)
         conversation = ""
         for item in memory:
             if item['role'] == 'system':
@@ -94,7 +95,7 @@ class OpenAI(commands.Cog):
             memory.append({"role": "user", "content": inp})
             print(f"Checking memory...{len(memory)}")
             response = openai.ChatCompletion.create(
-				model="gpt-3.5-turbo",#"gpt-4",
+				model="gpt-4",
 				messages=memory
 			)
             response = response['choices'][0]['message']['content']

@@ -13,7 +13,7 @@ class EventsCog(commands.Cog):
         owner = self.bot.get_user(pid)
         channel = self.bot.get_channel(cid)
         role = discord.utils.find(lambda r: r.name == "Survivors", channel.guild.roles)
-        await ctx.author.add_roles(discord.utils.get(channel.guild.roles, name=role))
+        await member.add_roles(discord.utils.get(channel.guild.roles, name=role))
         await channel.send(f"Welcome to The Campfire {member.mention}! If you need any help, feel free to ask {owner.mention}!")
 
 async def setup(bot):
