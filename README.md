@@ -21,7 +21,7 @@ I used a lot of API's over the development of this project to facilitate its fun
 # API's Used
 Below are some of the API's that I have used in the development of this bot, to help users have more fun with its functionality
 - discord.py API library for making all of this possible
-- OpenAI's gpt-3.5-turbo (soon to be gpt-4)
+- OpenAI's gpt-4 (and its predecessor, gpt-3.5-turbo)
 - OpenAI's Dall-E engine for image generation
 - Riot's API (featured in the now-retired league of legends lookup)
 - davidteather's Unofficial TikTok API (featured in the now-retired TikTok embedder)
