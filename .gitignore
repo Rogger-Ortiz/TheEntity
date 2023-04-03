@@ -2,3 +2,4 @@ reboot/
 *.sh
 backup.py
 requirements.txt
+dm.py
