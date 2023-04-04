@@ -1,11 +1,5 @@
 import discord
 from discord.ext import commands
-from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-import urllib.request
-from urllib.request import urlopen
-from urllib.request import HTTPError
 import nest_asyncio
 import os
 import random
@@ -23,6 +17,7 @@ import requests
 import threading
 from threading import Thread
 import cogs.themes
+import schedule
 
 #############################################################################################
 ######################          Global Initializations          #############################
@@ -45,7 +40,7 @@ initial_extensions = ['cogs.help',
                       'cogs.ai',
                       'cogs.service',
                       #'cogs.tiktok', Retired due to being IP banned.
-                      #'cogs.riot', Retired due to incompleteness/underuse
+                      #'cogs.riot', Retired due to incompleteness/underuse of features
                       'cogs.events',
                       'cogs.qrcode',
                       'cogs.fun',
@@ -112,51 +107,51 @@ async def loadall():
     for ext in initial_extensions:
         await bot.load_extension(ext)
 
-async def onboot(run): 
+
+async def gm(): # 09:00
+    channel=bot.get_channel(588386911677186049)
+    Guild = bot.get_guild(588386910951702550)
+    file = open('./files/birthdays.json')
+    data = json.load(file)
+    bdays = []
+    for thing in data:
+        entry = str(data[thing])
+        bday = entry.replace("[","").replace("]","").replace("'","")
+        if date == bday:
+            bdays.append(thing)
+    if weekday == 4:
+        gm = bot.get_cog("gm")
+        await gm.sendgm(channel)
+        return
+    if len(bdays) > 0:
+        for person in bdays:
+            user = Guild.get_member(int(person))
+            bdayEmbed = discord.Embed(color=defaultEmbedColor,description=":tada: *We got a birthday today!* :tada:")
+            bdayEmbed.add_field(name="**Make sure to wish a happy birthday to** ", value = f"{user.mention}!")
+            bdayEmbed.set_footer(text="I'm sure they'd appreciate it :)")
+            bdayEmbed.set_thumbnail(url=user.display_avatar.url)
+            await channel.send(embed=bdayEmbed)
+    else:
+        gmEmbed = discord.Embed(color=defaultEmbedColor, description="**Good Morning everyone! I hope you all have a great day!**")
+        await channel.send(embed=gmEmbed)
+        
+async def dmt(): #22:00
+        dm = bot.get_cog("dm")
+        print("Created DM, sending")
+        await dm.dm_tim()
+       
+async def cycleStatus(): #every hour      
+        themes = bot.get_cog("ThemesCog")
+        await themes.changeStatus()
+
+schedule.every().hour.do(cycleStatus)
+schedule.every().day.at("09:25").do(gm)
+schedule.every().day.at("22:00").do(dmt)
+
+async def runSchedule(): 
     while True:
-        now = datetime.now()
-        date = now.strftime("%m/%d")
-        time = now.strftime("%H:%M%p")
-        print(time)
-        weekday = now.weekday()
-        channel=bot.get_channel(588386911677186049)
-        guildID = 588386910951702550
-        Guild = bot.get_guild(guildID)
-
-        if time == "09:00AM":
-            file = open('./files/birthdays.json')
-            data = json.load(file)
-            bdays = []
-            for thing in data:
-                entry = str(data[thing])
-                bday = entry.replace("[","").replace("]","").replace("'","")
-                if date == bday:
-                    bdays.append(thing)
-            if weekday == 4:
-                gm = bot.get_cog("gm")
-                await gm.sendgm(channel)
-                return
-            if len(bdays) > 0:
-                for person in bdays:
-                    user = Guild.get_member(int(person))
-                    bdayEmbed = discord.Embed(color=defaultEmbedColor,description=":tada: *We got a birthday today!* :tada:")
-                    bdayEmbed.add_field(name="**Make sure to wish a happy birthday to** ", value = f"{user.mention}!")
-                    bdayEmbed.set_footer(text="I'm sure they'd appreciate it :)")
-                    bdayEmbed.set_thumbnail(url=user.display_avatar.url)
-                    await channel.send(embed=bdayEmbed)
-            else:
-                gmEmbed = discord.Embed(color=defaultEmbedColor, description="**Good Morning everyone! I hope you all have a great day!**")
-                await channel.send(embed=gmEmbed)
-        if time == "22:00PM":
-            dm = bot.get_cog("dm")
-            print("Created DM, sending")
-            await dm.dm_tim()
-            print("Send!")
-        if ":00" in time:
-            themes = bot.get_cog("ThemesCog")
-            await themes.changeStatus()
-
-        await asyncio.sleep(60)
+        schedule.run_pending()
+        time.sleep(1)
 
 bot.remove_command('help')
 asyncio.run(loadall())
@@ -165,11 +160,6 @@ asyncio.run(loadall())
 async def on_ready():
     print('Logged on as {0}!'.format(bot.user))
     print("Discord.py Version: "+discord.__version__)
-    boot_thread = Thread(target=onboot)
-    print("Set thread!")
-    if not boot_thread.is_alive():
-        await onboot(1)
-    else:
-        print("Connection rebooted! Preventing second call for checking time...")
+    await runSchedule()
 
 bot.run(os.getenv("DPY_key"))
