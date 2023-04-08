@@ -18,6 +18,7 @@ class Service(commands.Cog):
         embedMsg.add_field(name="Tim and Trevor Modded Minecraft Server", value="A modded minecraft server that was made by our very own. Download the modpack [here!](https://tinyurl.com/22sey3ka)\n(IP: **tnt.rjortiz.com**)", inline=True)
         embedMsg.add_field(name="Vanilla Minecraft Server", value="Just a plain old vanilla server, always updated to the latest version.\n(IP: **play.rjortiz.com**)", inline=True)
         embedMsg.add_field(name="Satisfactory Server", value="A plain server on the Northern Forest map, updated with Update 7! (IP: **stf.rjortiz.com**)", inline=True)
+        embedMsg.add_field(name="Don't Starve Together Server", value="A server of 6 people for Don't Starve Together! (Server name: **The Campfire** Password: **campfire**)", inline=True)
         embedMsg.add_field(name="The Entity Bot", value="Me! I am a continuously upgraded passion project maintained by RJ.\n(Github: **https://github.com/Rogger-Ortiz/TheEntity**)", inline=True)
         await ctx.reply(embed=embedMsg)
     
