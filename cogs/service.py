@@ -16,31 +16,8 @@ class Service(commands.Cog):
     async def services(self, ctx):
         embedMsg = discord.Embed(title="Services", description="These are all of the services offered that are hosted by The Campfire!", color=defaultEmbedColor)
         embedMsg.add_field(name="The Entity Bot", value="Me! I am a continuously upgraded passion project maintained by RJ.\n(Github: **https://github.com/Rogger-Ortiz/TheEntity**)", inline=True)
-        await ctx.reply(embed=embedMsg)
         embedMsg.set_footer(text="More services to come in Summer 2023!")
+        await ctx.reply(embed=embedMsg)
     
-    @commands.command(name="reboot", hidden=True) 
-    @commands.has_permissions(administrator = True)
-    async def reboot(self, ctx, service):
-        successEmbed = discord.Embed(color=0x00FF00)
-        errorEmbed = discord.Embed(color=0xFF0000)
-        match service:
-            case "NTT":
-                if(observer not in ctx.author.roles):
-                    errorEmbed.add_field(name=":x: Only RJ can reboot me!", value="If you believe there is something wrong with me, please tell RJ, he will help from there.")
-                    await ctx.reply(embed=errorEmbed)
-                else:
-                    successEmbed.add_field(name=":white_check_mark: As you wish.", value="Rebooting now.")
-                    await ctx.reply(embed=successEmbed)
-                    subprocess.run(['../reboot/sendCMD.sh', 'NTT'])
-            case "TNT":
-                successEmbed.add_field(name=":white_check_mark: The TNT Server will be restarted.", value="The server will be down momentarily, check back in a minute.")
-                await ctx.reply(embed=successEmbed)
-                subprocess.run(['../reboot/sendCMD.sh', 'TNT'])
-            case "MMC":
-                successEmbed.add_field(name=":white_check_mark: The MMC Server will be restarted.", value="The server will be down momentarily, check back in a minute")
-                await ctx.reply(embed=successEmbed)
-                subprocess.run(['../reboot/sendCMD.sh', 'MMC'])
-
 async def setup(bot):
 	await bot.add_cog(Service(bot))
