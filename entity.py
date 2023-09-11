@@ -39,15 +39,15 @@ initial_extensions = ['cogs.help',
                       'cogs.dev',
                       'cogs.ai',
                       'cogs.service',
-                      #'cogs.tiktok', Retired due to being IP banned.
-                      #'cogs.riot', Retired due to incompleteness/underuse of features
+                      #'cogs.tiktok', #Retired due to being IP banned.
+                      'cogs.riot', #Retired due to incompleteness/underuse of features
                       'cogs.events',
                       'cogs.qrcode',
                       'cogs.fun',
                       'cogs.moderation',
                       'cogs.vc',
                       'cogs.gifs',
-                      #'cogs.warframe', Retired due to no solid API being available
+                      #'cogs.warframe', #Retired due to no solid API being available
                       'cogs.gm',
                       'cogs.dm',
                       'cogs.lyrics',

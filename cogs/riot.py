@@ -8,7 +8,7 @@ from riotwatcher import LolWatcher, ApiError
 watcher = LolWatcher(os.getenv("RIOT_key"))
 region = 'na1'
 
-class Development(commands.Cog):
+class Riot(commands.Cog):
     description = "Developmental Commands (WIP):"
 
     def __init__(self,bot):
@@ -54,4 +54,4 @@ class Development(commands.Cog):
                     await ctx.send(embed=errorEmbed)
 
 async def setup(bot):
-	await bot.add_cog(Development(bot))
+	await bot.add_cog(Riot(bot))

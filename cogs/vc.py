@@ -65,6 +65,7 @@ class VoiceChannel(commands.Cog):
     @commands.command(name="vcname", help=f"Renames your custom voice channel name!", usage="[Channel Name]")
     async def vcname(self, ctx):
         vcname = ctx.message.content[8:]
+        vcname = vcname.replace("\"","")
         if vcname == None:
             ctx.send(":x: Please specify a name to track!")
             return
