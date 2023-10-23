@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from selenium import webdriver
+from selenium.webdriver import ActionChains
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import os
@@ -33,12 +34,13 @@ async def grabLinkData(link):
     options.add_argument(f"--user-agent={userAgent}")
     browser = webdriver.Chrome(options=options)
     browser.get(link)
+    browser.set_window_size(1920,1080)
     time.sleep(1)
-    authorNick = browser.find_element(By.XPATH, '//span[@class="tiktok-1xccqfx-SpanNickName e17fzhrb3"]').text           # /text()
+    authorNick = browser.find_element(By.XPATH, '//span[@class="tiktok-1xccqfx-SpanNickName e17fzhrb1"]').text           # /text()
     imgLink = browser.find_element(By.XPATH, '//div[@class="tiktok-uha12h-DivContainer e1vl87hj1"]/span/img').get_attribute("src")   # /@src
-    vidLink = browser.find_element(By.XPATH, '//div[@class="tiktok-1h63bmc-DivBasicPlayerWrapper e1yey0rl2"]/div/video').get_attribute("src")
-    print("Video Link: "+vidLink)
-    authorLink = browser.find_element(By.XPATH, '//a[@class="tiktok-prw1wq e17fzhrb6"]').get_attribute("href")         # /@href
+#    vidLink = browser.find_element(By.XPATH, '//div[@class="tiktok-8lv75m-DivBasicPlayerWrapper e1yey0rl2"]/div/video').get_attribute("src")
+#    print("Video Link: "+vidLink)
+    authorLink = browser.find_element(By.XPATH, '//a[@class="e17fzhrb2 tiktok-or3xqz-StyledLink-StyledLink er1vbsz0"]').get_attribute("href")         # /@href
     authorHandle = authorLink.replace("https://www.tiktok.com/","")
     data = []
 
@@ -48,14 +50,27 @@ async def grabLinkData(link):
     data.append(str(imgLink))                      #3
     data.append(str(blank))                        #4
     
+
+    #----------Use Top if API down, otherwise use bottom--------#
     #browser.get(vidLink) 
     #response = requests.get(vidLink)
-    vid = browser.current_url.split("video/")[1].split("?")[0]
+    #urllib.request.urlretrieve(vidLink, "tiktok.mp4")
+    actions = ActionChains(browser)
+    location = browser.find_element(By.XPATH, '//div[@class="tiktok-ty9aj4-DivVideoContainer eqrezik6"]')
+    actions.context_click(location)
+    actions.perform()
+
+    button = browser.find_element(By.XPATH, '//ul[@class="tiktok-1wzkvd7-UlPopupContainer e5bhsb10"]/li')
+    actions.click(button)
+    actions.perform()
+
+    vidUrl = browser.current_url
+    vid = vidUrl.split("video/")[1].split("?")[0]
     print(vid)
-    with TikTokApi() as api:
-        video = api.video(id=vid)
-        video_data = video.bytes()
-        open("tiktok.mp4", "wb").write(video_data)
+    #with TikTokApi() as api:
+    #    video = api.video(id=vid)
+    #    video_data = video.bytes()
+    #    open("tiktok.mp4", "wb").write(video_data)
     
     print(data)
     browser.close()
@@ -82,8 +97,6 @@ async def grabCaption(link):
         alt = tag.replace("/tag/", "#")
         caption+=alt+' '
     return caption
-
-pytesseract.pytesseract.tesseract_cmd=r'/usr/bin/tesseract'
 
 class TikTokCog(commands.Cog):
     def __init__(self,bot):
@@ -112,8 +125,8 @@ class TikTokCog(commands.Cog):
                 return
             try:
                 tiktokEmbed = discord.Embed(color=0xFF0050, description=caption+" [#link]("+url+")")
-                if(exists("./tiktok.mp4")):
-                    os.remove("./tiktok.mp4")
+                if(exists("./Download.mp4")):
+                    os.remove("./Download.mp4")
                 data = await grabLinkData(url)
                 print(url)
     
@@ -121,8 +134,8 @@ class TikTokCog(commands.Cog):
                 tiktokEmbed.set_footer(text="TikTok "+data[4], icon_url="https://cdn4.iconfinder.com/data/icons/social-media-flat-7/64/Social-media_Tiktok-512.png")
                 await msg.edit(suppress=True)
                 await msg.channel.send(embed=tiktokEmbed)
-                await msg.channel.send(file=discord.File(r'./tiktok.mp4'))
-                os.remove("./tiktok.mp4")
+                await msg.channel.send(file=discord.File(r'./Download.mp4'))
+                os.remove("./Download.mp4")
             except ValueError:#IndexError:
                 await msg.add_reaction('\U0001F5BC')
 

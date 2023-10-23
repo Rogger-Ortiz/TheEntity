@@ -65,17 +65,18 @@ class Tasks(commands.Cog):
     timtime = datetime.time(hour=2, minute=0)
     
     @tasks.loop(time=timtime)
-    async def dmt(self): #22:00
-            dm = self.bot.get_cog("dm")
-            print("Created DM, sending")
-            await dm.dm_tim()
-            return
+    async def dmt(self):#22:00
+        return
+        dm = self.bot.get_cog("dm")
+        print("Created DM, sending")
+        await dm.dm_tim()
+        return
     
     @tasks.loop(hours=1)
     async def cycleStatus(self): #every hour      
-            themes = self.bot.get_cog("ThemesCog")
-            await themes.changeStatus()
-            return
+        themes = self.bot.get_cog("ThemesCog")
+        await themes.changeStatus()
+        return
 
     @cycleStatus.before_loop
     async def beforeCycle(self):

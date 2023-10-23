@@ -82,7 +82,7 @@ class OpenAI(commands.Cog):
             return
         if self.bot.user not in msg.mentions:
             return
-        if msg.author.premium_since == None and msg.author.id != 862548273951932416:
+        if msg.author.premium_since == None and msg.author.id != 862548273951932416 and msg.author.id != 248440677350899712:
             await msg.channel.send(embed=boostEmbed)
             return
         if self.bot.user in msg.mentions:
