@@ -29,6 +29,7 @@ class Role(commands.Cog):
                 for thing in list:
                     roleList += thing+"\n"
                 roleEmbed.add_field(name="Available Roles to Add:", value=roleList, inline=False)
+                roleEmbed.set_footer(text="Remember to use \"\" if a role is more than one word!!!")
                 await ctx.send(embed=roleEmbed)
                 return
             except KeyError:
