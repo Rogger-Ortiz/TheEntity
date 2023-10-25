@@ -164,23 +164,27 @@ class TrickRTreat(commands.Cog):
         file = open('/home/captain/boot/NTT/files/trt/leaderboard.json', 'r+')
         channel = ctx.channel
         data = json.load(file)
-        user = []
+        user_str = []
         score = []
         lbEmbed = discord.Embed(color=defaultEmbedColor)
         for key in data:
-            user.append(key)
+            user_str.append(key)
             score.append(data[key])
-        bubbleSort(score, user)
+        bubbleSort(score, user_str)
+        score = score[::-1]
+        user_str = user_str[::-1]
         print(score)
-        print(user)
+        print(user_str)
         lbStr = ""
-        for i in range(10):
-            try:
-                user = self.bot.get_user(int(user[i]))
-                score = score[i]
-                lbStr+=f"{user.mention}: {score}\n"
-            except:
-                continue
+        count = 0
+        for i in range(len(user_str)):
+            if(count>9):
+                break
+            uid = int(user_str[i])
+            user_obj = self.bot.get_user(uid)
+            score_num = score[i]
+            lbStr+=f"{user_obj.mention}: {score_num}\n"
+            count+=1
         lbEmbed.title = "Leaderboard"
         lbEmbed.description = lbStr
         lbEmbed.set_footer(text="Make sure to keep answering those doors!")

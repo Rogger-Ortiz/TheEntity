@@ -8,7 +8,7 @@ class Birthday(commands.Cog):
     def __init__(self,bot):
         self.bot = bot
 
-    @commands.command(aliases=['birthday', 'birthdays'], help="Track your birthday and get a special embed when its your day!", usage="[mm/dd](optional)")
+    @commands.command(name='birthday', aliases=['birthdays'], help="Track your birthday and get a special embed when its your day!", usage="[mm/dd](optional)")
     async def birthday(self, ctx, bday=None):
         defaultEmbedColor=discord.Color(0xe67e22)
         green = discord.Color(0x00FF00)
