@@ -51,7 +51,8 @@ initial_extensions = ['cogs.help',
                       'cogs.gm',
                       'cogs.dm',
                       'cogs.lyrics',
-                      'cogs.tasks']
+                      'cogs.tasks',
+                      'cogs.trickrtreat']
 
 ###########################################################
 
