@@ -82,81 +82,82 @@ class TrickRTreat(commands.Cog):
     async def on_message(self, msg):
         if msg.author.bot:
             return
-        chance = random()
-        print(chance)
-        if chance<0.05:
-             trtEmbed = discord.Embed(color=defaultEmbedColor)
-             channel = self.bot.get_channel(channel_id)
-             filedir = os.listdir('/home/captain/boot/NTT/files/trt/')
-             filedir.sort()
-             trt = randint(0,1)
-             if trt == 0:
-                 trt = "h$trick"
-             if trt == 1:
-                 trt = "h$treat"
-             value = randint(0,39)
-             counter = 0
-             for file in filedir:
-                 if counter == value:
-                     item_gen = random()
-                     item_val = 0
-                     if item_gen < 1.0:
+        if msg.channel.id == channel_id:
+            chance = random()
+            print(chance)
+            if chance<0.05:
+                 trtEmbed = discord.Embed(color=defaultEmbedColor)
+                 channel = self.bot.get_channel(channel_id)
+                 filedir = os.listdir('/home/captain/boot/NTT/files/trt/')
+                 filedir.sort()
+                 trt = randint(0,1)
+                 if trt == 0:
+                     trt = "h$trick"
+                 if trt == 1:
+                     trt = "h$treat"
+                 value = randint(0,39)
+                 counter = 0
+                 for file in filedir:
+                     if counter == value:
+                         item_gen = random()
                          item_val = 0
-                     if item_gen < 0.25:
-                         item_val = 1
-                     if item_gen < 0.05:
-                         item_val = 2
-                     item_str = item[value][item_val]
-                     send_file = discord.File(f"/home/captain/boot/NTT/files/trt/{file}", filename=file)
-                     trtEmbed.title = "Trick or Treat!"
-                     trtEmbed.description = f"*Ding Dong*\n\nSomeone is at the door! Answer them using **{trt}**"
-                     trtEmbed.set_footer(text="They won't wait forever! Answer them within the next minute to give them candy!")
-                     trtEmbed.set_image(url=f'attachment://{file}')
-                     break
-                 else:
-                     counter+=1
-             sent_message = await channel.send(file=send_file, embed=trtEmbed)
-             try:
-                 message = await self.bot.wait_for('message', timeout=60.0, check=lambda message: trt in message.content)
-                 successEmbed = discord.Embed(color=defaultEmbedColor)
-                 successEmbed.set_image(url=f'attachment://{file}')
-                 successEmbed.title = "Happy Halloween!"
-                 successEmbed.description = f"As a thank you for your kindess, they give {message.author.mention} one **{item[value][item_val]}**"
-                 if item_val == 0:
-                     successEmbed.set_footer(text="This item is common. There's not much special about it. It has been added to your inventory.")
-                 if item_val == 1:
-                     successEmbed.set_footer(text="This item is uncommon. You take note of its existence. It has been added to your inventory.")
-                 if item_val == 2:
-                     successEmbed.set_footer(text="This item is rare!. Beaming with happiness, you add it to your inventory.") 
-                 
-                 memID = message.author.id
-                 file = open('/home/captain/boot/NTT/files/trt/leaderboard.json', 'r+')
-                 data = json.load(file)
+                         if item_gen < 1.0:
+                             item_val = 0
+                         if item_gen < 0.25:
+                             item_val = 1
+                         if item_gen < 0.05:
+                             item_val = 2
+                         item_str = item[value][item_val]
+                         send_file = discord.File(f"/home/captain/boot/NTT/files/trt/{file}", filename=file)
+                         trtEmbed.title = "Trick or Treat!"
+                         trtEmbed.description = f"*Ding Dong*\n\nSomeone is at the door! Answer them using **{trt}**"
+                         trtEmbed.set_footer(text="They won't wait forever! Answer them within the next minute to give them candy!")
+                         trtEmbed.set_image(url=f'attachment://{file}')
+                         break
+                     else:
+                         counter+=1
+                 sent_message = await channel.send(file=send_file, embed=trtEmbed)
                  try:
-                     amt = data[str(memID)]
-                     amt +=1
-                     entry = f"{{\"{memID}\": {amt}}}"
-                     newEntry = json.loads(entry)
-                     data.update(newEntry)
-                     file.truncate(0)
-                     file.seek(0)
-                     json.dump(data, file)
-                     file.close()
-                 except KeyError:
-                     entry = f"{{\"{memID}\": 1}}"
-                     newEntry = json.loads(entry)
-                     data.update(newEntry)
-                     file.truncate(0)
-                     file.seek(0)
-                     json.dump(data, file)
-                     file.close()
-
-                 await sent_message.edit(embed=successEmbed)
-             except asyncio.TimeoutError:
-                 failEmbed = discord.Embed(color=defaultEmbedColor)
-                 failEmbed.title = "The trick-or-treater disappeared..."
-                 failEmbed.description = "No one noticed them and they left :("
-                 await sent_message.edit(embed=failEmbed, attachments=[])
+                     message = await self.bot.wait_for('message', timeout=60.0, check=lambda message: trt in message.content)
+                     successEmbed = discord.Embed(color=defaultEmbedColor)
+                     successEmbed.set_image(url=f'attachment://{file}')
+                     successEmbed.title = "Happy Halloween!"
+                     successEmbed.description = f"As a thank you for your kindess, they give {message.author.mention} one **{item[value][item_val]}**"
+                     if item_val == 0:
+                         successEmbed.set_footer(text="This item is common. There's not much special about it. It has been added to your inventory.")
+                     if item_val == 1:
+                         successEmbed.set_footer(text="This item is uncommon. You take note of its existence. It has been added to your inventory.")
+                     if item_val == 2:
+                         successEmbed.set_footer(text="This item is rare!. Beaming with happiness, you add it to your inventory.") 
+                     
+                     memID = message.author.id
+                     file = open('/home/captain/boot/NTT/files/trt/leaderboard.json', 'r+')
+                     data = json.load(file)
+                     try:
+                         amt = data[str(memID)]
+                         amt +=1
+                         entry = f"{{\"{memID}\": {amt}}}"
+                         newEntry = json.loads(entry)
+                         data.update(newEntry)
+                         file.truncate(0)
+                         file.seek(0)
+                         json.dump(data, file)
+                         file.close()
+                     except KeyError:
+                         entry = f"{{\"{memID}\": 1}}"
+                         newEntry = json.loads(entry)
+                         data.update(newEntry)
+                         file.truncate(0)
+                         file.seek(0)
+                         json.dump(data, file)
+                         file.close()
+    
+                     await sent_message.edit(embed=successEmbed)
+                 except asyncio.TimeoutError:
+                     failEmbed = discord.Embed(color=defaultEmbedColor)
+                     failEmbed.title = "The trick-or-treater disappeared..."
+                     failEmbed.description = "No one noticed them and they left :("
+                     await sent_message.edit(embed=failEmbed, attachments=[])
 
     @commands.command(aliases=["leaderbaord","lb"])
     async def leaderboard(self, ctx):
