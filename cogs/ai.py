@@ -82,17 +82,22 @@ class OpenAI(commands.Cog):
             return
         if self.bot.user not in msg.mentions:
             return
-        if msg.author.premium_since == None and msg.author.id != 862548273951932416 and msg.author.id != 248440677350899712:
-            await msg.channel.send(embed=boostEmbed)
-            return
+#        if msg.author.premium_since == None and msg.author.id != 862548273951932416 and msg.author.id != 248440677350899712:
+#            await msg.channel.send(embed=boostEmbed)
+#            return
         if self.bot.user in msg.mentions:
             prompt = msg.content.split(self.bot.user.mention)
             inp = ""
+            contentArr = []
             for seg in prompt:
                 if len(seg) == 0:
                     continue
                 inp = inp+seg
-            memory.append({"role": "user", "content": inp})
+            contentArr.append({"type": "text", "text": inp})
+            if len(msg.attachments) > 0:
+                for att in msg.attachments:
+                    contentArr.append({"type": "image_url", "image_url": att.url})
+            memory.append({"role": "user", "content": contentArr})
             print(f"Checking memory...{len(memory)}")
             response = openai.ChatCompletion.create(
 				#model="gpt-3.5-turbo",
@@ -105,6 +110,21 @@ class OpenAI(commands.Cog):
             if len(memory) > 11:
                 memory = memory[2:]
                 memory.append(default[0])
+            parsedMsg = []
+            parseStr = ""
+            if len(response) > 6000:
+                await msg.channel.send("I'm sorry, but my response is way too long for Discord to handle appropriately.")
+                return
+            if len(response) > 2000:
+                for i in range(len(response)):
+                    if i%1900 == 0:
+                        parsedMsg.append(parseStr)
+                        parseStr=""
+                    parseStr += str(response[i])
+                for string in parsedMsg:
+                    await msg.channel.send(sanitize(string))
+                return
+            print(response)        
             await msg.channel.send(sanitize(response))
             return
 
@@ -112,7 +132,7 @@ class OpenAI(commands.Cog):
 
     @commands.cooldown(1, 300, commands.BucketType.user)
     @commands.cooldown(1, 60, commands.BucketType.guild)
-    @commands.has_role('Offerings to The Entity')
+#    @commands.has_role('Offerings to The Entity')
     @commands.command(name="imagine", help="Generates an image based on user input!")
     async def imagine(self, ctx):
         errorEmbed = discord.Embed(color=0xFF0000)

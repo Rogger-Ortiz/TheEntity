@@ -21,7 +21,7 @@ class Service(commands.Cog):
         embedMsg.add_field(name="Terraria Server", value="A brand new Terraria Server! Join using IP: **play.thecampfire.gg** and Port: **47272**", inline=True)
         embedMsg.add_field(name="Satisfactory Server", value="A Satisfactory server on the Rocky Desert! Join using IP: **play.thecampfire.gg** and Port: **57279**", inline=True)
         #embedMsg.add_field(name="", value="", inline=True)
-        embedMsg.set_footer(text="Request what service you want to see!")
+        embedMsg.set_footer(text="Like the Banner Art? That piece was made by Lida Cosgrove at lidadraws.com!")
         await ctx.reply(embed=embedMsg)
     
 async def setup(bot):

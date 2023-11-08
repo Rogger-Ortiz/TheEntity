@@ -26,12 +26,12 @@ def play_next(ctx):
         player = voice.play(source, after=lambda e: play_next(ctx))
 
 class YouTube(commands.Cog):
-    description=""
+    description="Play any YouTube video in a voice channel, and control it using the below commands!"
     def __init__(self,bot):
         self.bot = bot
 
     
-    @commands.command(name="play")
+    @commands.command(name="play", help="Plays a song in a voice channel given a YouTube link!", usage="[url]")
     async def play(self, ctx, url=None):
         if url==None or ("youtube.com" not in url and "youtu.be" not in url):
             await ctx.channel.send("Please enter a URL!")
@@ -63,25 +63,17 @@ class YouTube(commands.Cog):
         player = vc.play(source, after=lambda e: play_next(ctx))
         voice = ctx.message.guild.voice_client
         while voice.is_playing():
-            await asyncio.sleep(30)
+            await asyncio.sleep(90)
         await voice.disconnect(force=True)
 
-    @commands.command(name="dc")
+    @commands.command(name="dc", aliases=["disconnect"], help="Disconnects bot from voice channel")
     async def dc(self, ctx):
         voice = ctx.message.guild.voice_client
         if voice.is_playing():
             voice.stop()
         await voice.disconnect(force=True)
 
-    @commands.command(name="stop")
-    async def stop(self, ctx):
-        voice = ctx.message.guild.voice_client
-        if not voice.is_playing:
-            await ctx.send("Not playing anything!")
-            return
-        voice.stop()
-
-    @commands.command(name="pause")
+    @commands.command(name="pause", help="Pauses the song that is currently playing")
     async def pause(self, ctx):
         voice = ctx.message.guild.voice_client
         if not voice.is_playing():
@@ -89,7 +81,7 @@ class YouTube(commands.Cog):
             return
         voice.pause()
 
-    @commands.command(name="resume")
+    @commands.command(name="resume", help="Resumes the song that is paused")
     async def resume(self, ctx):
         voice = ctx.message.guild.voice_client
         if not voice.is_paused():
@@ -97,7 +89,7 @@ class YouTube(commands.Cog):
             return
         voice.resume()
 
-    @commands.command(name="queue")
+    @commands.command(name="queue", help="Views the queue of songs to play")
     async def queue(self, ctx):
         voice = ctx.message.guild.voice_client
         queueEmbed=discord.Embed(color=defaultEmbedColor)
@@ -115,7 +107,7 @@ class YouTube(commands.Cog):
         queueEmbed.description=qString
         await ctx.send(embed=queueEmbed)
 
-    @commands.command(name="remove")
+    @commands.command(name="remove", help="Removes a song based on its queue position", usage="[queue number]")
     async def pop(self, ctx, num):
         popEmbed = discord.Embed(color=defaultEmbedColor)
         url = queue.pop(int(num)-1)
@@ -125,7 +117,7 @@ class YouTube(commands.Cog):
         popEmbed.add_field(name=author, value=title)
         await ctx.send(embed=popEmbed)
 
-    @commands.command(name="skip")
+    @commands.command(name="skip", help="Skips the current song, and plays the next in queue, if available")
     async def skip(self, ctx):
         skipEmbed = discord.Embed(color=defaultEmbedColor)
         voice = ctx.message.guild.voice_client
