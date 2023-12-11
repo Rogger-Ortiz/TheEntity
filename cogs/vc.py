@@ -3,6 +3,9 @@ from discord.ext import commands
 import json
 
 #Any extra libaries go under THIS LINE to import on live version
+defaultEmbedColor=discord.Color(0xe67e22)
+green = discord.Color(0x00FF00)
+red = discord.Color(0xFF0000)
 
 class VoiceChannel(commands.Cog):
     description="Customize your custom VC name using:"
@@ -65,6 +68,13 @@ class VoiceChannel(commands.Cog):
     @commands.command(name="vcname", help=f"Renames your custom voice channel name!", usage="[Channel Name]")
     async def vcname(self, ctx):
         vcname = ctx.message.content[8:]
+        if vcname == "":
+            red = discord.Color(0xFF0000)
+            errorEmbed = discord.Embed(color=red)
+            errorEmbed.title = "Please enter a valid name for your voice channel!"
+            errorEmbed.description = "Syntax: '$vcname [name]'"
+            await ctx.reply(embed=errorEmbed)
+            return
         vcname = vcname.replace("\"","")
         if vcname == None:
             ctx.send(":x: Please specify a name to track!")

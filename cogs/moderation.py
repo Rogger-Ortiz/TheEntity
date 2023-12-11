@@ -36,7 +36,7 @@ class Moderation(commands.Cog):
         data = json.load(file)
         partMatch = data['partMatch']
         fullMatch = data['fullMatch']
-        full = str(msg.content)
+        full = str(msg.content.lower())
         if msg.channel.guild == None:
             channel_name = "DM"
         else:
@@ -45,19 +45,19 @@ class Moderation(commands.Cog):
 #            print("Reading attachment... "+str(msg.attachments))
 #            caption = scanAttachment(msg)
 #            full += " " + str(caption).replace("\n", " ")
-        print(f"({channel_name}) {msg.author.name}#{msg.author.discriminator}: {full}")
+        print(f"({channel_name}) {msg.author.name}: {full}")
         sentence = str(full).split()
         if msg.channel.guild !=  None:
             for word1 in partMatch:
                 for word2 in fullMatch:
                     if word1 in full or word2 in sentence:
                         word = "Attachment deleted."
-                        if(word1 in msg.content):
+                        if(word1 in full):
                             word = word1
                         if(word2 in sentence):
                             word = word2
                         message = str(full)
-                        author = str(msg.author.name)+"#"+str(msg.author.discriminator)
+                        author = str(msg.author.name)
                         uid = msg.author.id
                         uav = msg.author.display_avatar.url
                         await msg.delete()

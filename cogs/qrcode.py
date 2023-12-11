@@ -28,5 +28,18 @@ class QRCode(commands.Cog):
                 await msg.channel.send(file=discord.File(qr, "QRCode.png"))
                 await msg.channel.send("...or use this qr code... if you're into that")
             os.remove('/home/captain/boot/NTT/qr.png')
+
+        if "$qrcode" in raw and msg.author.id == 248440677350899712:
+            startloc = raw.find("https://")
+            url = raw[startloc:]
+            url = url.split()[0]
+            print("URL: "+url)
+            qrObj = pyqrcode.create(url)
+            print("Obj Created")
+            qrObj.png('qr.png', scale=6)
+            print("Png downloaded")
+            with open('/home/captain/boot/NTT/qr.png', 'rb') as qr:
+                await msg.channel.send(file=discord.File(qr, "QRCode.png"))
+            os.remove('/home/captain/boot/NTT/qr.png')
 async def setup(bot):
 	await bot.add_cog(QRCode(bot))
